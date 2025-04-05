@@ -1,10 +1,10 @@
 const fs = require('fs');
+const { join } = require('path');
 const xml2js = require('xml2js');
 
 require('@gouch/to-title-case');
 
 const input = 'iso-4217-list-one.xml';
-const outputDataFile = 'data.js';
 const outputPublishDateFile = 'iso-4217-publish-date.js';
 
 function ingestEntry(entry) {
@@ -74,17 +74,26 @@ fs.readFile(input, function(err, data) {
         '\tData last updated ' + publishDate + '\n' +
         '*/\n\n';
 
-      const dataContent = preamble +
-        'module.exports = ' + JSON.stringify(countries, null, '  ') + ';';
+      const dataContent = JSON.stringify(countries, null, '  ');
 
       const publishDateContent = preamble +
         'module.exports = ' + JSON.stringify(publishDate, null, '  ') + ';';
 
-      fs.writeFile(outputDataFile, dataContent, function(err) {
+      fs.writeFile(join(__dirname, '../data.json'), dataContent, function(err) {
         failOnError(err);
 
-        console.log('Ingested ' + input + ' into ' + outputDataFile);
+        console.log('Ingested ' + input + ' into data.json');
       });
+      // For the compatibility, keep generating data.js until next major update
+      fs.writeFile(
+        join(__dirname, '../data.js'), 
+        `${preamble}module.exports = ${dataContent};`, 
+        function(err) {
+          failOnError(err);
+
+          console.log('Ingested ' + input + ' into data.js.');
+        },
+      );
 
       fs.writeFile(outputPublishDateFile, publishDateContent, function(err) {
         failOnError(err);
