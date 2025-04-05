@@ -119,7 +119,7 @@ console.log(cc.countries());
 ## data
 
 ``` js
-var data = require('currency-codes/data');
+var data = require('currency-codes/data.json');
 console.log(data);
 
 /*
